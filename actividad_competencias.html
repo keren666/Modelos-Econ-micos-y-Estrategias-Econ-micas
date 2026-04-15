@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión de Competencias – Actividad de Clase</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+  :root {
+    --ink: #1a1a2e;
+    --cream: #f5f0e8;
+    --accent: #e63946;
+    --gold: #f4a261;
+    --teal: #2a9d8f;
+    --purple: #7b2d8b;
+    --light-bg: #faf7f2;
+    --card-shadow: 0 4px 24px rgba(26,26,46,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Space Mono', monospace;
+    background: var(--light-bg);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 2rem 2rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+    opacity: 0.25;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+  }
+  header h1 span { color: var(--gold); }
+  header p {
+    margin-top: .5rem;
+    font-size: .78rem;
+    opacity: .7;
+    letter-spacing: .08em;
+  }
+
+  /* ── NAV TABS ── */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    padding: 1rem 1.5rem;
+    background: var(--ink);
+    border-bottom: 3px solid var(--accent);
+  }
+  .tab-btn {
+    font-family: 'Syne', sans-serif;
+    font-size: .78rem;
+    font-weight: 700;
+    padding: .45rem 1rem;
+    border: 2px solid var(--cream);
+    background: transparent;
+    color: var(--cream);
+    cursor: pointer;
+    letter-spacing: .06em;
+    transition: all .2s;
+    border-radius: 2px;
+  }
+  .tab-btn.active, .tab-btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    display: none;
+    padding: 1.5rem;
+    animation: fadeIn .3s ease;
+  }
+  .section.active { display: block; }
+
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── SECTION TITLE ── */
+  .sec-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: .05em;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+  }
+  .sec-title .pill {
+    background: var(--accent);
+    color: #fff;
+    font-size: .65rem;
+    padding: .2rem .6rem;
+    border-radius: 20px;
+  }
+  .instrucciones {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 4px;
+    padding: .9rem 1rem;
+    font-size: .75rem;
+    line-height: 1.7;
+    margin-bottom: 1.2rem;
+  }
+  .instrucciones strong { color: var(--gold); }
+
+  /* ══════════════════════════════
+     ACTIVIDAD 1 – RULETA
+  ══════════════════════════════ */
+  .ruleta-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  canvas#ruleta {
+    border-radius: 50%;
+    box-shadow: 0 6px 32px rgba(0,0,0,.25);
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+  }
+  .arrow-wrap {
+    font-size: 2.5rem;
+    color: var(--accent);
+    margin-top: -1.5rem;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,.3));
+  }
+  .btn-girar {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: .9rem;
+    letter-spacing: .1em;
+    padding: .7rem 2rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: transform .1s, background .2s;
+  }
+  .btn-girar:hover { background: #c1121f; }
+  .btn-girar:active { transform: scale(.97); }
+  .resultado-ruleta {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 4px;
+    padding: .8rem 1.2rem;
+    text-align: center;
+    font-size: .8rem;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 340px;
+  }
+  .resultado-ruleta .competencia {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--gold);
+    margin-bottom: .3rem;
+  }
+  .resultado-ruleta .tarea { font-size: .72rem; opacity: .85; line-height: 1.5; }
+
+  /* ══════════════════════════════
+     ACTIVIDAD 2 – TARJETAS CASO
+  ══════════════════════════════ */
+  .deck {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+  .card-caso {
+    background: #fff;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    padding: 1rem;
+    width: calc(50% - .5rem);
+    min-width: 140px;
+    cursor: pointer;
+    position: relative;
+    transition: transform .2s, box-shadow .2s;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .card-caso:hover {
+    transform: translate(-3px,-3px);
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .card-caso.flipped { border-color: var(--teal); box-shadow: 3px 3px 0 var(--teal); }
+  .card-caso .front { display: block; }
+  .card-caso .back { display: none; }
+  .card-caso.flipped .front { display: none; }
+  .card-caso.flipped .back { display: block; }
+  .card-caso .num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .card-caso .label {
+    font-size: .68rem;
+    margin-top: .3rem;
+    opacity: .6;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .card-caso .front p {
+    font-size: .75rem;
+    margin-top: .5rem;
+    font-style: italic;
+    color: var(--ink);
+  }
+  .card-caso .back .comp {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    color: var(--teal);
+    font-size: .85rem;
+    margin-bottom: .3rem;
+  }
+  .card-caso .back p {
+    font-size: .7rem;
+    line-height: 1.5;
+  }
+  .hint { font-size: .7rem; text-align: center; margin-top: .5rem; opacity: .55; }
+
+  /* ══════════════════════════════
+     ACTIVIDAD 3 – DRAG & DROP
+  ══════════════════════════════ */
+  .dd-container { display: flex; flex-direction: column; gap: 1rem; }
+  .skills-pool {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    min-height: 60px;
+    background: #fff;
+    border: 2px dashed var(--ink);
+    border-radius: 4px;
+    padding: .6rem;
+  }
+  .skill-chip {
+    background: var(--gold);
+    color: var(--ink);
+    font-family: 'Syne', sans-serif;
+    font-size: .7rem;
+    font-weight: 700;
+    padding: .35rem .7rem;
+    border-radius: 20px;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    border: 2px solid transparent;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .skill-chip:hover { transform: scale(1.05); box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+  .skill-chip.dragging { opacity: .4; }
+  .skill-chip.placed { background: var(--teal); color: #fff; cursor: default; }
+
+  .categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .8rem;
+  }
+  .cat-box {
+    flex: 1;
+    min-width: 130px;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    min-height: 100px;
+    padding: .6rem;
+    position: relative;
+    background: #fdf9f3;
+    transition: background .2s, border-color .2s;
+  }
+  .cat-box.drag-over { background: #e8f7f5; border-color: var(--teal); }
+  .cat-box .cat-title {
+    font-family: 'Syne', sans-serif;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .05em;
+    margin-bottom: .5rem;
+    padding-bottom: .3rem;
+    border-bottom: 2px solid var(--ink);
+  }
+  .cat-box .chips-inside {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+    min-height: 40px;
+  }
+  .cat-box .chips-inside .skill-chip { font-size: .65rem; padding: .28rem .6rem; }
+  .dd-feedback {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 4px;
+    padding: .7rem 1rem;
+    font-size: .75rem;
+    text-align: center;
+    display: none;
+  }
+  .dd-feedback.show { display: block; }
+  .dd-feedback .score { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--gold); }
+  .btn-check, .btn-reset {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: .78rem;
+    letter-spacing: .08em;
+    padding: .55rem 1.2rem;
+    border: 2px solid var(--ink);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all .2s;
+  }
+  .btn-check { background: var(--teal); color: #fff; border-color: var(--teal); }
+  .btn-check:hover { background: #21867a; }
+  .btn-reset { background: #fff; color: var(--ink); }
+  .btn-reset:hover { background: var(--ink); color: var(--cream); }
+  .dd-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+
+  /* ══════════════════════════════
+     ACTIVIDAD 4 – SEMÁFORO
+  ══════════════════════════════ */
+  .semaforo-grid {
+    display: flex;
+    flex-direction: column;
+    gap: .8rem;
+  }
+  .sitem {
+    background: #fff;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    padding: .8rem;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .sitem p { font-size: .76rem; line-height: 1.55; margin-bottom: .6rem; }
+  .traffic-lights {
+    display: flex;
+    gap: .5rem;
+  }
+  .tl-btn {
+    flex: 1;
+    padding: .4rem;
+    border: 2px solid transparent;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    transition: all .2s;
+    opacity: .5;
+  }
+  .tl-btn.verde { background: #d8f3dc; color: #1b4332; border-color: #52b788; }
+  .tl-btn.amarillo { background: #fff3b0; color: #7b5e00; border-color: #f4c430; }
+  .tl-btn.rojo { background: #ffe5e5; color: #7b1d1d; border-color: #e63946; }
+  .tl-btn.selected, .tl-btn:hover { opacity: 1; transform: scale(1.03); }
+  .sitem.done { border-color: var(--teal); }
+  .sitem.done p::after { content: ' ✓'; color: var(--teal); }
+  .semaforo-resultado {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 4px;
+    padding: .7rem 1rem;
+    font-size: .75rem;
+    text-align: center;
+    display: none;
+  }
+  .semaforo-resultado.show { display: block; }
+
+  /* ══════════════════════════════
+     ACTIVIDAD 5 – QUIZ
+  ══════════════════════════════ */
+  .quiz-wrap { display: flex; flex-direction: column; gap: .6rem; }
+  .qcard {
+    background: #fff;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    padding: .9rem;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .qcard .qnum {
+    font-family: 'Syne', sans-serif;
+    font-size: .65rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    color: var(--accent);
+    margin-bottom: .35rem;
+    text-transform: uppercase;
+  }
+  .qcard .qtext { font-size: .78rem; line-height: 1.55; margin-bottom: .6rem; }
+  .options { display: flex; flex-direction: column; gap: .35rem; }
+  .opt-btn {
+    text-align: left;
+    background: var(--cream);
+    border: 1.5px solid #ccc;
+    border-radius: 3px;
+    padding: .4rem .7rem;
+    font-family: 'Space Mono', monospace;
+    font-size: .7rem;
+    cursor: pointer;
+    transition: all .15s;
+    line-height: 1.4;
+  }
+  .opt-btn:hover:not(:disabled) { border-color: var(--ink); background: #e8e3d8; }
+  .opt-btn.correct { background: #d8f3dc; border-color: var(--teal); color: #1b4332; }
+  .opt-btn.wrong { background: #ffe5e5; border-color: var(--accent); color: #7b1d1d; }
+  .feedback-q { font-size: .7rem; margin-top: .4rem; padding: .35rem .6rem; border-radius: 3px; display: none; }
+  .feedback-q.show { display: block; }
+  .feedback-q.ok { background: #d8f3dc; color: #1b4332; }
+  .feedback-q.fail { background: #ffe5e5; color: #7b1d1d; }
+  .quiz-score {
+    background: var(--ink);
+    color: var(--cream);
+    text-align: center;
+    border-radius: 4px;
+    padding: 1rem;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    display: none;
+  }
+  .quiz-score.show { display: block; }
+  .quiz-score span { color: var(--gold); font-size: 1.6rem; }
+
+  /* ══════════════════════════════
+     RESPONSIVE
+  ══════════════════════════════ */
+  @media (max-width: 420px) {
+    .card-caso { width: 100%; }
+    .categories { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Gestión de <span>Competencias</span><br>Psicología Organizacional</h1>
+  <p>ACTIVIDADES INTERACTIVAS DE CLASE · 5 DINÁMICAS</p>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('ruleta')">🎯 Ruleta</button>
+  <button class="tab-btn" onclick="switchTab('casos')">🃏 Casos</button>
+  <button class="tab-btn" onclick="switchTab('drag')">🧩 Clasifica</button>
+  <button class="tab-btn" onclick="switchTab('semaforo')">🚦 Semáforo</button>
+  <button class="tab-btn" onclick="switchTab('quiz')">⚡ Quiz</button>
+</div>
+
+<!-- ══ 1. RULETA ══ -->
+<div id="tab-ruleta" class="section active">
+  <div class="sec-title">🎯 Ruleta de Competencias <span class="pill">GRUPAL</span></div>
+  <div class="instrucciones">
+    <strong>¿Cómo jugar?</strong> Gira la ruleta. El equipo que salga seleccionado tiene <strong>3 minutos</strong> para: (1) definir la competencia, (2) dar un ejemplo real en una empresa, (3) decir cómo se evalúa. ¡El resto del grupo retroalimenta!
+  </div>
+  <div class="ruleta-wrap">
+    <div class="arrow-wrap">▼</div>
+    <canvas id="ruleta" width="300" height="300"></canvas>
+    <button class="btn-girar" onclick="girarRuleta()">⟳ GIRAR</button>
+    <div class="resultado-ruleta" id="resultRuleta">
+      <div class="competencia" id="compNombre">— Presiona GIRAR —</div>
+      <div class="tarea" id="compTarea"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 2. TARJETAS CASO ══ -->
+<div id="tab-casos" class="section">
+  <div class="sec-title">🃏 Tarjetas de Caso <span class="pill">EQUIPOS</span></div>
+  <div class="instrucciones">
+    <strong>¿Cómo funciona?</strong> Cada equipo toma una tarjeta. Lean el escenario, discutan qué competencia(s) están en juego y por qué. Luego voltéenla para ver la respuesta. ¡Comparen!
+  </div>
+  <div class="deck" id="deckCasos"></div>
+  <p class="hint">👆 Toca cada tarjeta para revelar la competencia</p>
+</div>
+
+<!-- ══ 3. DRAG & DROP ══ -->
+<div id="tab-drag" class="section">
+  <div class="sec-title">🧩 Clasifica las Competencias <span class="pill">INDIVIDUAL</span></div>
+  <div class="instrucciones">
+    <strong>¿Cómo jugar?</strong> Arrastra cada competencia hacia su categoría correcta: <em>Técnica</em>, <em>Conductual</em> o <em>Directiva</em>. Cuando termines, presiona <strong>Verificar</strong>.
+  </div>
+  <div class="dd-container">
+    <div class="skills-pool" id="skillsPool"></div>
+    <div class="categories" id="categoriesWrap"></div>
+    <div class="dd-actions">
+      <button class="btn-check" onclick="checkDrag()">✓ Verificar</button>
+      <button class="btn-reset" onclick="resetDrag()">↺ Reiniciar</button>
+    </div>
+    <div class="dd-feedback" id="ddFeedback"></div>
+  </div>
+</div>
+
+<!-- ══ 4. SEMÁFORO ══ -->
+<div id="tab-semaforo" class="section">
+  <div class="sec-title">🚦 Semáforo de Prácticas <span class="pill">REFLEXIÓN</span></div>
+  <div class="instrucciones">
+    <strong>¿Cómo funciona?</strong> Lee cada práctica organizacional. Evalúala con el semáforo: 🟢 <em>Buena práctica</em>, 🟡 <em>Mejorable</em>, 🔴 <em>Mala práctica</em>. No hay una sola respuesta; ¡el debate es el objetivo!
+  </div>
+  <div class="semaforo-grid" id="semaforoGrid"></div>
+  <div class="semaforo-resultado" id="semaforoRes"></div>
+</div>
+
+<!-- ══ 5. QUIZ ══ -->
+<div id="tab-quiz" class="section">
+  <div class="sec-title">⚡ Quiz Rápido <span class="pill">COMPETITIVO</span></div>
+  <div class="instrucciones">
+    <strong>¿Cómo jugar?</strong> Responde individualmente. ¡El primero en responder todas correctamente gana! El docente puede proyectar y cronometrar.
+  </div>
+  <div class="quiz-wrap" id="quizWrap"></div>
+  <div class="quiz-score" id="quizScore"></div>
+</div>
+
+<script>
+// ─────────────────────────────────────
+// TAB SWITCH
+// ─────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ─────────────────────────────────────
+// 1. RULETA
+// ─────────────────────────────────────
+const competencias = [
+  { nombre: 'Liderazgo', tarea: 'Define el concepto, da un ejemplo en una empresa real y explica cómo se desarrolla.' },
+  { nombre: 'Trabajo en Equipo', tarea: 'Describe qué comportamientos evidencian esta competencia y cómo se evalúa.' },
+  { nombre: 'Orientación al Cliente', tarea: 'Explica su importancia estratégica y da un caso donde falló.' },
+  { nombre: 'Resolución de Conflictos', tarea: 'Propón una técnica para evaluarla en selección de personal.' },
+  { nombre: 'Comunicación Asertiva', tarea: 'Da un ejemplo de esta competencia en un escenario de crisis laboral.' },
+  { nombre: 'Gestión del Cambio', tarea: 'Explica por qué esta competencia es clave hoy en día y cómo se mide.' },
+  { nombre: 'Pensamiento Crítico', tarea: 'Diseña una pregunta de entrevista por competencias para evaluarla.' },
+  { nombre: 'Planificación', tarea: 'Describe indicadores concretos de comportamiento para esta competencia.' },
+];
+
+const COLORS = ['#e63946','#f4a261','#2a9d8f','#7b2d8b','#457b9d','#e9c46a','#264653','#e76f51'];
+let spinning = false;
+let currentAngle = 0;
+
+function drawRuleta(angle) {
+  const canvas = document.getElementById('ruleta');
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2, cy = canvas.height / 2, r = cx - 6;
+  const slice = (2 * Math.PI) / competencias.length;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  competencias.forEach((c, i) => {
+    const start = angle + i * slice;
+    const end = start + slice;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, end);
+    ctx.closePath();
+    ctx.fillStyle = COLORS[i % COLORS.length];
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + slice / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 11px Syne, sans-serif';
+    const words = c.nombre.split(' ');
+    words.forEach((w, wi) => {
+      ctx.fillText(w, r - 10, wi * 13 - (words.length - 1) * 6);
+    });
+    ctx.restore();
+  });
+
+  // center circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, 18, 0, 2 * Math.PI);
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fill();
+}
+
+function girarRuleta() {
+  if (spinning) return;
+  spinning = true;
+  document.getElementById('compNombre').textContent = '…';
+  document.getElementById('compTarea').textContent = '';
+
+  const extraSpins = (5 + Math.random() * 5) * 2 * Math.PI;
+  const targetAngle = currentAngle + extraSpins;
+  const duration = 3000;
+  const start = performance.now();
+
+  function animate(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 4);
+    const angle = currentAngle + (targetAngle - currentAngle) * ease;
+    drawRuleta(angle);
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      currentAngle = targetAngle % (2 * Math.PI);
+      spinning = false;
+
+      // Determine which slice is at top (- Math.PI/2)
+      const slice = (2 * Math.PI) / competencias.length;
+      const normalized = ((2 * Math.PI) - (currentAngle % (2 * Math.PI))) % (2 * Math.PI);
+      const idx = Math.floor(normalized / slice) % competencias.length;
+      const comp = competencias[idx];
+      document.getElementById('compNombre').textContent = comp.nombre;
+      document.getElementById('compTarea').textContent = comp.tarea;
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+drawRuleta(0);
+
+// ─────────────────────────────────────
+// 2. TARJETAS CASO
+// ─────────────────────────────────────
+const casos = [
+  { num: '01', scenario: 'María lidera un equipo diverso que no se comunica bien. Organiza reuniones semanales donde cada miembro propone soluciones y vota. Los resultados mejoran 30%.', comp: 'Liderazgo Participativo', exp: 'Fomenta la participación y aprovecha la diversidad para la toma de decisiones.' },
+  { num: '02', scenario: 'Pedro siempre entrega sus proyectos a tiempo, organiza su agenda, anticipa riesgos y comunica avances sin que se lo pidan.', comp: 'Planificación y Autogestión', exp: 'Comportamiento proactivo y orientado a resultados con capacidad de organización.' },
+  { num: '03', scenario: 'La empresa cambia su sistema de CRM. Ana aprende el nuevo software en 2 días, ayuda a sus colegas y propone mejoras al proceso.', comp: 'Adaptabilidad / Gestión del Cambio', exp: 'Respuesta positiva al cambio y disposición para aprender y enseñar.' },
+  { num: '04', scenario: 'Dos departamentos discuten por recursos. Carlos facilita una reunión donde cada parte expone sus necesidades y llegan a un acuerdo que beneficia a ambos.', comp: 'Resolución de Conflictos', exp: 'Mediación efectiva que preserva relaciones y logra resultados win-win.' },
+  { num: '05', scenario: 'Una clienta llama frustrada. Laura escucha con atención, pide disculpas, ofrece una solución y hace seguimiento al día siguiente. La clienta renueva contrato.', comp: 'Orientación al Cliente', exp: 'Escucha activa, empatía y gestión efectiva de quejas como oportunidad de fidelización.' },
+  { num: '06', scenario: 'Jorge nota que el proceso de reportes tarda 4 horas. Propone una plantilla automatizada que reduce el tiempo a 30 minutos sin que nadie se lo pidiera.', comp: 'Innovación / Iniciativa', exp: 'Identifica oportunidades de mejora y actúa de forma proactiva.' },
+];
+
+function buildCasos() {
+  const deck = document.getElementById('deckCasos');
+  casos.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'card-caso';
+    el.innerHTML = `
+      <div class="front">
+        <div class="num">${c.num}</div>
+        <div class="label">Caso práctico</div>
+        <p>${c.scenario}</p>
+      </div>
+      <div class="back">
+        <div class="comp">✦ ${c.comp}</div>
+        <p>${c.exp}</p>
+      </div>`;
+    el.onclick = () => el.classList.toggle('flipped');
+    deck.appendChild(el);
+  });
+}
+buildCasos();
+
+// ─────────────────────────────────────
+// 3. DRAG & DROP
+// ─────────────────────────────────────
+const ddData = {
+  skills: [
+    { id: 's1', label: 'Manejo de Excel', cat: 'Técnica' },
+    { id: 's2', label: 'Liderazgo', cat: 'Directiva' },
+    { id: 's3', label: 'Empatía', cat: 'Conductual' },
+    { id: 's4', label: 'Programación', cat: 'Técnica' },
+    { id: 's5', label: 'Toma de decisiones', cat: 'Directiva' },
+    { id: 's6', label: 'Trabajo en equipo', cat: 'Conductual' },
+    { id: 's7', label: 'Análisis financiero', cat: 'Técnica' },
+    { id: 's8', label: 'Visión estratégica', cat: 'Directiva' },
+    { id: 's9', label: 'Comunicación asertiva', cat: 'Conductual' },
+  ],
+  categories: ['Técnica', 'Conductual', 'Directiva'],
+};
+
+const ddState = {}; // skillId -> catName or null
+
+function buildDrag() {
+  const pool = document.getElementById('skillsPool');
+  const catsWrap = document.getElementById('categoriesWrap');
+  pool.innerHTML = ''; catsWrap.innerHTML = '';
+  ddData.categories.forEach(cat => { ddState[cat] = []; });
+
+  // Shuffle
+  const shuffled = [...ddData.skills].sort(() => Math.random() - .5);
+  shuffled.forEach(skill => {
+    ddState[skill.id] = null;
+    const chip = makeChip(skill);
+    pool.appendChild(chip);
+  });
+
+  ddData.categories.forEach(cat => {
+    const box = document.createElement('div');
+    box.className = 'cat-box';
+    box.dataset.cat = cat;
+    box.innerHTML = `<div class="cat-title">${cat}</div><div class="chips-inside" id="ci-${cat}"></div>`;
+    box.addEventListener('dragover', e => { e.preventDefault(); box.classList.add('drag-over'); });
+    box.addEventListener('dragleave', () => box.classList.remove('drag-over'));
+    box.addEventListener('drop', e => {
+      e.preventDefault();
+      box.classList.remove('drag-over');
+      const id = e.dataTransfer.getData('text/plain');
+      moveChipTo(id, cat);
+    });
+    catsWrap.appendChild(box);
+  });
+}
+
+function makeChip(skill) {
+  const chip = document.createElement('div');
+  chip.className = 'skill-chip';
+  chip.textContent = skill.label;
+  chip.id = 'chip-' + skill.id;
+  chip.draggable = true;
+  chip.dataset.skillId = skill.id;
+  chip.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', skill.id);
+    chip.classList.add('dragging');
+  });
+  chip.addEventListener('dragend', () => chip.classList.remove('dragging'));
+  // Touch support
+  let touchClone = null;
+  chip.addEventListener('touchstart', e => {
+    touchClone = chip.cloneNode(true);
+    touchClone.style.cssText = 'position:fixed;z-index:9999;opacity:.8;pointer-events:none;';
+    document.body.appendChild(touchClone);
+  }, {passive:true});
+  chip.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const t = e.touches[0];
+    if (touchClone) { touchClone.style.left = (t.clientX - 40) + 'px'; touchClone.style.top = (t.clientY - 20) + 'px'; }
+  }, {passive:false});
+  chip.addEventListener('touchend', e => {
+    if (touchClone) { document.body.removeChild(touchClone); touchClone = null; }
+    const t = e.changedTouches[0];
+    const el = document.elementFromPoint(t.clientX, t.clientY);
+    const box = el?.closest('.cat-box');
+    if (box) moveChipTo(skill.id, box.dataset.cat);
+  });
+  return chip;
+}
+
+function moveChipTo(skillId, catName) {
+  const chip = document.getElementById('chip-' + skillId);
+  if (!chip) return;
+  // Remove from previous location
+  chip.remove();
+  chip.classList.remove('dragging');
+  ddState[skillId] = catName;
+  const container = document.getElementById('ci-' + catName);
+  container.appendChild(chip);
+}
+
+function checkDrag() {
+  let correct = 0;
+  ddData.skills.forEach(skill => {
+    const chip = document.getElementById('chip-' + skill.id);
+    if (ddState[skill.id] === skill.cat) {
+      correct++;
+      if (chip) chip.style.background = '#2a9d8f';
+    } else {
+      if (chip) chip.style.background = '#e63946';
+    }
+  });
+  const fb = document.getElementById('ddFeedback');
+  fb.classList.add('show');
+  const pct = Math.round((correct / ddData.skills.length) * 100);
+  fb.innerHTML = `<div class="score">${correct}/${ddData.skills.length} correctas (${pct}%)</div>
+  ${correct === ddData.skills.length ? '🎉 ¡Perfecto! Dominas la clasificación de competencias.' : 'Revisa las marcadas en rojo — discútelas con tu equipo.'}`;
+}
+
+function resetDrag() {
+  document.getElementById('ddFeedback').classList.remove('show');
+  buildDrag();
+}
+
+buildDrag();
+
+// ─────────────────────────────────────
+// 4. SEMÁFORO
+// ─────────────────────────────────────
+const practicas = [
+  'La empresa realiza evaluaciones de competencias solo cuando hay problemas de desempeño, no de forma periódica.',
+  'Se definen perfiles de competencias para cada puesto antes de abrir una convocatoria de selección.',
+  'Los managers evalúan competencias de sus subordinados sin capacitación previa en la metodología.',
+  'La empresa usa entrevistas conductuales (STAR) para evaluar competencias en el proceso de selección.',
+  'El área de RRHH crea diccionarios de competencias pero nunca los socializa con los gerentes.',
+  'Se vinculan las competencias evaluadas con los planes de formación y desarrollo del personal.',
+];
+
+function buildSemaforo() {
+  const grid = document.getElementById('semaforoGrid');
+  grid.innerHTML = '';
+  practicas.forEach((p, i) => {
+    const el = document.createElement('div');
+    el.className = 'sitem';
+    el.innerHTML = `<p>${p}</p>
+      <div class="traffic-lights">
+        <button class="tl-btn verde" onclick="selectSemaforo(this,${i},'verde')">🟢 Buena</button>
+        <button class="tl-btn amarillo" onclick="selectSemaforo(this,${i},'amarillo')">🟡 Mejorable</button>
+        <button class="tl-btn rojo" onclick="selectSemaforo(this,${i},'rojo')">🔴 Mala</button>
+      </div>`;
+    grid.appendChild(el);
+  });
+}
+
+let semaforoAnswers = {};
+function selectSemaforo(btn, idx, color) {
+  const sitem = btn.closest('.sitem');
+  sitem.querySelectorAll('.tl-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  semaforoAnswers[idx] = color;
+  sitem.classList.add('done');
+  if (Object.keys(semaforoAnswers).length === practicas.length) {
+    const res = document.getElementById('semaforoRes');
+    res.classList.add('show');
+    const verde = Object.values(semaforoAnswers).filter(v => v === 'verde').length;
+    res.innerHTML = `✅ ¡Completado! Identificaste <strong>${verde}</strong> buenas prácticas de ${practicas.length}.<br>
+    <small style="opacity:.7">Discute con el grupo las que marcaste diferente — ahí está el aprendizaje.</small>`;
+  }
+}
+buildSemaforo();
+
+// ─────────────────────────────────────
+// 5. QUIZ
+// ─────────────────────────────────────
+const preguntas = [
+  {
+    q: '¿Cuál es la diferencia principal entre una competencia técnica y una conductual?',
+    opts: [
+      'Las técnicas son innatas; las conductuales se aprenden.',
+      'Las técnicas se refieren a conocimientos y habilidades específicas del trabajo; las conductuales a comportamientos observables transversales.',
+      'Las conductuales solo aplican para mandos medios.',
+      'No existe diferencia, son sinónimos.'
+    ],
+    correct: 1,
+    fb: 'Correcto. Las competencias técnicas (hard skills) son propias del puesto; las conductuales (soft skills) son transversales y observables en el comportamiento.'
+  },
+  {
+    q: 'El método STAR en entrevistas por competencias significa:',
+    opts: ['Selección, Test, Análisis, Resultado', 'Situación, Tarea, Acción, Resultado', 'Sistema, Técnica, Aprendizaje, Retroalimentación', 'Saber, Talento, Actitud, Rendimiento'],
+    correct: 1,
+    fb: '¡Exacto! STAR = Situación, Tarea, Acción, Resultado. Es el estándar para explorar comportamientos pasados como predictor del futuro.'
+  },
+  {
+    q: 'Un "diccionario de competencias" en una organización sirve principalmente para:',
+    opts: [
+      'Registrar el historial laboral de los empleados.',
+      'Definir, describir y nivelar las competencias que la organización considera clave.',
+      'Calcular salarios según el nivel de estudios.',
+      'Archivar los resultados de las evaluaciones de desempeño.'
+    ],
+    correct: 1,
+    fb: 'Correcto. El diccionario estandariza el lenguaje y los criterios de competencias para toda la organización.'
+  },
+  {
+    q: '¿Qué tipo de competencia es "Visión estratégica"?',
+    opts: ['Técnica', 'Conductual', 'Directiva / Gerencial', 'Operativa'],
+    correct: 2,
+    fb: 'Así es. Las competencias directivas o gerenciales son propias de roles de liderazgo y gestión.'
+  },
+  {
+    q: 'La evaluación 360° en gestión por competencias implica:',
+    opts: [
+      'Que solo el jefe evalúa al colaborador.',
+      'Retroalimentación de múltiples fuentes: jefe, pares, subordinados y autoevaluación.',
+      'Una evaluación anónima solo del área de RRHH.',
+      'Rotar al empleado por todos los departamentos.'
+    ],
+    correct: 1,
+    fb: '¡Correcto! La 360° recoge perspectivas de todas las personas que trabajan con el evaluado, dando una visión integral.'
+  },
+];
+
+let quizAnswers = {};
+function buildQuiz() {
+  const wrap = document.getElementById('quizWrap');
+  wrap.innerHTML = '';
+  preguntas.forEach((p, qi) => {
+    const card = document.createElement('div');
+    card.className = 'qcard';
+    card.innerHTML = `
+      <div class="qnum">Pregunta ${qi + 1} de ${preguntas.length}</div>
+      <div class="qtext">${p.q}</div>
+      <div class="options">
+        ${p.opts.map((o, oi) => `<button class="opt-btn" onclick="answerQuiz(this,${qi},${oi})">${String.fromCharCode(65+oi)}) ${o}</button>`).join('')}
+      </div>
+      <div class="feedback-q" id="fq-${qi}">${p.fb}</div>`;
+    wrap.appendChild(card);
+  });
+}
+
+function answerQuiz(btn, qi, oi) {
+  const card = btn.closest('.qcard');
+  if (card.dataset.answered) return;
+  card.dataset.answered = '1';
+  const p = preguntas[qi];
+  const btns = card.querySelectorAll('.opt-btn');
+  btns.forEach(b => b.disabled = true);
+  if (oi === p.correct) {
+    btn.classList.add('correct');
+    quizAnswers[qi] = true;
+  } else {
+    btn.classList.add('wrong');
+    btns[p.correct].classList.add('correct');
+    quizAnswers[qi] = false;
+  }
+  const fb = document.getElementById('fq-' + qi);
+  fb.classList.add('show', oi === p.correct ? 'ok' : 'fail');
+  if (Object.keys(quizAnswers).length === preguntas.length) {
+    const score = Object.values(quizAnswers).filter(Boolean).length;
+    const el = document.getElementById('quizScore');
+    el.classList.add('show');
+    el.innerHTML = `Puntaje final: <span>${score}/${preguntas.length}</span><br>
+    <small style="font-size:.7rem;opacity:.7">${score === preguntas.length ? '🏆 ¡Perfecto! Eres un experto en gestión de competencias.' : score >= 3 ? '👍 Buen trabajo. Repasa los conceptos que fallaste.' : '📖 Revisa los temas y vuelve a intentarlo.'}</small>`;
+  }
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
